@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="en"> 
+ <head> 
+  <meta charset="UTF-8"> 
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+  <title>quotifymarc</title> 
+  <link rel="stylesheet" href="styles.css">  
+     
+ <style type="text/css" id="dcoder_stylesheet">body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+background-image: url(https://telegra.ph/file/abb6f9f0bf98d5d8aa7c2.jpg); 
+background-size: 500px;
+
+#likeCount{
+color: cyan;
+}
+h2{
+  color: white;
+}
+#rankList{
+color: yellow;
+}
+
+#recommendations{
+color: silver;
+}
+
+
+}
+
+.container {
+    max-width: 800px;
+    margin: 50px auto;
+    text-align: center;
+}
+
+.postioned-image{
+  
+  position: absolute;
+  top: 20px;
+  left: 30px;
+}
+
+
+h1 {
+    color: green;
+}
+
+#quote {
+    
+    font-size: 30px;
+   font-weight: bold;
+background-image: url(https://telegra.ph/file/11353e7641fc855eac706.jpg);
+font-style: italic;
+font-family: "consolas",san-sherif;;
+background-size: 300px;
+color: orange;
+
+}
+
+
+button {
+    padding: 10px 20px;
+    margin-top: 20px;
+    background-color: purple;
+    color: cyan;
+    border: none;
+    border-radius: 5px;
+   font-weight: 20px;
+    cursor: pointer;
+  font-size: 15px;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
+.rating {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.thumb-btn {
+    font-size: 30px;
+    background-color: transparent;
+    border: 2px  transparent;
+    border-radius: 50%;
+    cursor: pointer;
+    margin: 0 10px;
+    padding: 10px;
+    transition: background-color 0.3s, border-color 0.3s;
+}
+
+.thumb-btn:hover {
+    background-color: rgba(144, 238, 144, 0.5); /* Light green */
+    border-color: #4CAF50;
+}
+
+#likeCount {
+    font-size: 24px;
+    margin-left: 10px;
+}
+
+nav {
+    margin-top: 20px;
+}
+
+nav ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+nav li {
+    display: inline;
+    margin: 0 10px;
+}
+
+nav a {
+    text-decoration: none;
+    color: #4CAF50;
+}
+
+nav a:hover {
+    text-decoration: underline;
+}
+
+.hidden {
+    display: none;
+}
+
+.footer {
+    position: absolute;
+  //  bottom: 20px;
+    left: 20px;
+    font-style: italic;
+    font-size: 14px;
+    color: #888;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</style></head> 
+ <body> 
+  <div class="container"> 
+   <h1>motivational quote </h1> 
+   <div id="quote"></div> <button id="downloadBtn">Download</button><br><button id="newQuoteBtn">Generate Quote</button> <button id="prevQuoteBtn">Previous Quote</button> 
+   <div class="rating"> <button id="likeBtn" class="thumb-btn">👍</button> <span id="likeCount">0</span> <button id="dislikeBtn" class="thumb-btn">👎</button> 
+   </div> 
+   <nav> 
+    <ul> 
+     <li><a href="#" id="rankTab">Rank by Author</a></li> 
+     <li><a href="#" id="recommendationsTab">Top Recommendations</a></li> 
+    </ul> 
+   </nav> 
+   <div id="rankings" class="hidden"> 
+    <h2>Rank by Author</h2> 
+    <ul id="rankList"></ul> 
+   </div> 
+   <div id="recommendations" class="hidden"> 
+    <h2>Top Recommendations</h2> 
+    <ul id="recommendationsList"></ul> 
+   </div> 
+   <footer class="footer">
+     Courtesy of: Marcus Onyango 
+   </footer> 
+  </div> 
+  <script src="script.js"></script> 
+ 
+<script type="text/javascript" id="dcoder_script">document.addEventListener('DOMContentLoaded', function() {
+    let quoteHistory = []; // Array to store quote history
+    let currentQuoteIndex = -1; // Index of current quote
+    let likeCounts = {}; // Object to store like counts by quote
+    let authorLikes = {}; // Object to store like counts by author
+    let currentQuote = {}; // Object to store current quote
+
+    function fetchQuote() {
+        fetch('https://api.quotable.io/random')
+        .then(response => response.json())
+        .then(data => {
+            quoteHistory.push(data); // Add new quote to history
+            currentQuoteIndex = quoteHistory.length - 1; // Update current quote index
+            displayQuote(data);
+            currentQuote = data;
+            if (!likeCounts[data._id]) {
+                likeCounts[data._id] = 0;
+            }
+            document.getElementById('likeCount').textContent = likeCounts[data._id];
+        })
+        .catch(error => console.error('Error fetching data:', error));
+    }
+
+    function displayQuote(quote) {
+        document.getElementById('quote').innerHTML = `<blockquote>${quote.content}</blockquote><cite>- ${quote.author}</cite>`;
+    }
+
+    function updateRankings() {
+        const rankList = document.getElementById('rankList');
+        rankList.innerHTML = '';
+        const sortedAuthors = Object.keys(authorLikes).sort((a, b) => authorLikes[b] - authorLikes[a]);
+        sortedAuthors.forEach(author => {
+            const li = document.createElement('li');
+            li.textContent = `${author}: ${authorLikes[author]} likes`;
+            rankList.appendChild(li);
+        });
+   
+    }
+
+ function getRandomColor() {
+    const letters = '0123456789ABCDEF';
+    let color = '#';
+    for (let i = 0; i < 6; i++) {
+        color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
+}
+
+
+
+
+
+
+
+
+
+
+    function updateRecommendations() {
+        const recommendationsList = document.getElementById('recommendationsList');
+        recommendationsList.innerHTML = '';
+        const sortedQuotes = quoteHistory.sort((a, b) => likeCounts[b._id] - likeCounts[a._id]).slice(0, 5);
+        sortedQuotes.forEach(quote => {
+            const li = document.createElement('li');
+            li.textContent = `"${quote.content}" - ${quote.author} (${likeCounts[quote._id]} likes)`;
+            recommendationsList.appendChild(li);
+        });
+    }
+
+    fetchQuote(); // Fetch initial quote
+
+    document.getElementById('downloadBtn').addEventListener('click', function() {
+        const quoteContent = document.getElementById('quote').innerText;
+        const blob = new Blob([quoteContent], { type: 'text/plain' });
+        const anchor = document.createElement('a');
+        anchor.download = 'motivational_quote.txt';
+        anchor.href = window.URL.createObjectURL(blob);
+        anchor.click();
+    });
+
+    document.getElementById('newQuoteBtn').addEventListener('click', function() {
+        fetchQuote();
+    });
+
+    document.getElementById('prevQuoteBtn').addEventListener('click', function() {
+        if (currentQuoteIndex > 0) {
+            currentQuoteIndex--;
+            displayQuote(quoteHistory[currentQuoteIndex]);
+            currentQuote = quoteHistory[currentQuoteIndex];
+            document.getElementById('likeCount').textContent = likeCounts[currentQuote._id];
+        }
+    });
+
+    document.getElementById('likeBtn').addEventListener('click', function() {
+        if (currentQuote) {
+            likeCounts[currentQuote._id] = (likeCounts[currentQuote._id] || 0) + 1;
+            document.getElementById('likeCount').textContent = likeCounts[currentQuote._id];
+            authorLikes[currentQuote.author] = (authorLikes[currentQuote.author] || 0) + 1;
+            updateRankings();
+            updateRecommendations();
+        }
+    });
+
+    document.getElementById('dislikeBtn').addEventListener('click', function() {
+        if (currentQuote && likeCounts[currentQuote._id] > 0) {
+            likeCounts[currentQuote._id] = (likeCounts[currentQuote._id] || 0) - 1;
+            document.getElementById('likeCount').textContent = likeCounts[currentQuote._id];
+            authorLikes[currentQuote.author] = (authorLikes[currentQuote.author] || 0) - 1;
+            updateRankings();
+            updateRecommendations();
+        }
+    });
+
+    document.getElementById('rankTab').addEventListener('click', function() {
+        document.getElementById('rankings').classList.toggle('hidden');
+        document.getElementById('recommendations').classList.add('hidden');
+    });
+
+    document.getElementById('recommendationsTab').addEventListener('click', function() {
+        document.getElementById('recommendations').classList.toggle('hidden');
+        document.getElementById('rankings').classList.add('hidden');
+    });
+});</script></body></html>
